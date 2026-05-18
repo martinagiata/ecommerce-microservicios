@@ -1,8 +1,15 @@
 using Dapper;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((ctx, lc) => lc
+    .ReadFrom.Configuration(ctx.Configuration)
+    .WriteTo.Console());
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -23,6 +30,12 @@ builder.Services.AddHealthChecks()
         }
     }, tags: ["database"]);
 
+builder.Services.AddHealthChecksUI(setup =>
+{
+    setup.SetEvaluationTimeInSeconds(600);
+    setup.AddHealthCheckEndpoint("MiniApi", "/health");
+}).AddInMemoryStorage();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -31,9 +44,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+app.MapHealthChecksUI(setup => setup.UIPath = "/health-ui");
+
 app.MapGet("/", () => "MiniApi funcionando!");
 
 app.Run();
