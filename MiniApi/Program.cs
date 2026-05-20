@@ -1,29 +1,53 @@
-using MiniApi.Extensions;
 
 public partial class Program
 {
     private static void Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
         // Swagger
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+builder.Host.UseSerilog((ctx, lc) => lc
+    .ReadFrom.Configuration(ctx.Configuration)
+    .WriteTo.Console());
 
-        var app = builder.Build();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddHealthChecks()
+    .AddCheck("sqlite-db", () =>
+    {
+        try
+        {
+            using var conn = new SqliteConnection("Data Source=app.db");
+            conn.Open();
+            conn.ExecuteScalar<int>("SELECT 1");
+            return HealthCheckResult.Healthy("SQLite OK");
+        }
+        catch (Exception ex)
+        {
+            return HealthCheckResult.Unhealthy("SQLite error", ex);
+        }
+    }, tags: ["database"]);
+
+builder.Services.AddHealthChecksUI(setup =>
+{
+    setup.SetEvaluationTimeInSeconds(600);
+    setup.AddHealthCheckEndpoint("MiniApi", "/health");
+}).AddInMemoryStorage();
+
+var app = builder.Build();
 
         // Swagger UI
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-        app.UseHttpsRedirection();
+app.UseSerilogRequestLogging();
+app.UseHttpsRedirection();
 
-        // Endpoints
-        app.MapItemEndpoints();
 
-        app.Run();
+app.Run();
     }
 }
