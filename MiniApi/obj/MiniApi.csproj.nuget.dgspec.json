@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\giane\\source\\repos\\toDoList-2026\\MiniApi\\MiniApi.csproj": {}
+    "C:\\Users\\giane\\source\\repos\\novashop-mvp\\MiniApi\\MiniApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\giane\\source\\repos\\toDoList-2026\\MiniApi\\MiniApi.csproj": {
+    "C:\\Users\\giane\\source\\repos\\novashop-mvp\\MiniApi\\MiniApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\giane\\source\\repos\\toDoList-2026\\MiniApi\\MiniApi.csproj",
+        "projectUniqueName": "C:\\Users\\giane\\source\\repos\\novashop-mvp\\MiniApi\\MiniApi.csproj",
         "projectName": "MiniApi",
-        "projectPath": "C:\\Users\\giane\\source\\repos\\toDoList-2026\\MiniApi\\MiniApi.csproj",
+        "projectPath": "C:\\Users\\giane\\source\\repos\\novashop-mvp\\MiniApi\\MiniApi.csproj",
         "packagesPath": "C:\\Users\\giane\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\giane\\source\\repos\\toDoList-2026\\MiniApi\\obj\\",
+        "outputPath": "C:\\Users\\giane\\source\\repos\\novashop-mvp\\MiniApi\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -45,16 +45,56 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.200"
+        "SdkAnalysisLevel": "10.0.300"
       },
       "frameworks": {
         "net10.0": {
           "framework": "net10.0",
           "targetAlias": "net10.0",
           "dependencies": {
+            "AspNetCore.HealthChecks.UI": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "AspNetCore.HealthChecks.UI.Client": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "AspNetCore.HealthChecks.UI.InMemory.Storage": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.1.72, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[10.0.6, )"
+            },
+            "Microsoft.Data.Sqlite": {
+              "target": "Package",
+              "version": "[10.0.7, )"
+            },
+            "Microsoft.OpenApi": {
+              "target": "Package",
+              "version": "[2.4.1, )"
+            },
+            "Serilog": {
+              "target": "Package",
+              "version": "[4.3.1, )"
+            },
+            "Serilog.AspNetCore": {
+              "target": "Package",
+              "version": "[10.0.0, )"
+            },
+            "Serilog.Sinks.Console": {
+              "target": "Package",
+              "version": "[6.1.1, )"
+            },
+            "Serilog.Sinks.File": {
+              "target": "Package",
+              "version": "[7.0.0, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
@@ -80,7 +120,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.202/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.300/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
