@@ -20,13 +20,47 @@ public static class EndpointsExtensions
         app.MapGet("/items/{id}", (long id) =>
         {
             var item = items.FirstOrDefault(i => i.Id == id);
-            return item is not null ? Results.Ok(item) : Results.NotFound();
+
+            if (item is null)
+            {
+                return Results.NotFound(new
+                {
+                    message = $"Item con id {id} no encontrado"
+                });
+            }
+
+            return Results.Ok(item);
         })
         .WithTags("Items");
 
         // POST
         app.MapPost("/items", (CreateItemRequest req) =>
         {
+            // Validaciones
+            if (string.IsNullOrWhiteSpace(req.Name))
+            {
+                return Results.BadRequest(new
+                {
+                    message = "El nombre es obligatorio"
+                });
+            }
+
+            if (req.Price < 0)
+            {
+                return Results.BadRequest(new
+                {
+                    message = "El precio no puede ser negativo"
+                });
+            }
+
+            if (req.Stock < 0)
+            {
+                return Results.BadRequest(new
+                {
+                    message = "El stock no puede ser negativo"
+                });
+            }
+
             var item = new Item
             {
                 Id = idCounter++,
@@ -38,7 +72,8 @@ public static class EndpointsExtensions
             };
 
             items.Add(item);
-            return Results.Ok(item);
+
+            return Results.Created($"/items/{item.Id}", item);
         })
         .WithTags("Items");
 
@@ -48,7 +83,37 @@ public static class EndpointsExtensions
             var existing = items.FirstOrDefault(i => i.Id == id);
 
             if (existing is null)
-                return Results.NotFound();
+            {
+                return Results.NotFound(new
+                {
+                    message = $"Item con id {id} no encontrado"
+                });
+            }
+
+            // Validaciones
+            if (string.IsNullOrWhiteSpace(req.Name))
+            {
+                return Results.BadRequest(new
+                {
+                    message = "El nombre es obligatorio"
+                });
+            }
+
+            if (req.Price < 0)
+            {
+                return Results.BadRequest(new
+                {
+                    message = "El precio no puede ser negativo"
+                });
+            }
+
+            if (req.Stock < 0)
+            {
+                return Results.BadRequest(new
+                {
+                    message = "El stock no puede ser negativo"
+                });
+            }
 
             var updated = existing with
             {
@@ -72,10 +137,19 @@ public static class EndpointsExtensions
             var item = items.FirstOrDefault(i => i.Id == id);
 
             if (item is null)
-                return Results.NotFound();
+            {
+                return Results.NotFound(new
+                {
+                    message = $"Item con id {id} no encontrado"
+                });
+            }
 
             items.Remove(item);
-            return Results.Ok();
+
+            return Results.Ok(new
+            {
+                message = $"Item con id {id} eliminado correctamente"
+            });
         })
         .WithTags("Items");
     }

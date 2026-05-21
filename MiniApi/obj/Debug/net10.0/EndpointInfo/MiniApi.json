@@ -111,6 +111,25 @@
           }
         }
       }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "MiniApi"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -164,6 +183,9 @@
   "tags": [
     {
       "name": "Items"
+    },
+    {
+      "name": "MiniApi"
     }
   ]
 }
