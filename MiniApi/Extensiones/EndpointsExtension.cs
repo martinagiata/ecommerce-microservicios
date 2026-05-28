@@ -1,4 +1,5 @@
-﻿using MiniApi.Models;
+using MiniApi.Models;
+using MiniApi.Repositories;
 
 namespace MiniApi.Extensions;
 
@@ -6,151 +7,59 @@ public static class EndpointsExtensions
 {
     public static void MapItemEndpoints(this WebApplication app)
     {
-        var items = new List<Item>();
-        var idCounter = 1L;
-
         // GET all
-        app.MapGet("/items", () =>
+        app.MapGet("/items", async (ItemRepository repo) =>
         {
+            var items = await repo.GetAllAsync();
             return Results.Ok(items);
-        })
-        .WithTags("Items");
+        }).WithTags("Items");
 
         // GET by id
-        app.MapGet("/items/{id}", (long id) =>
+        app.MapGet("/items/{id}", async (long id, ItemRepository repo) =>
         {
-            var item = items.FirstOrDefault(i => i.Id == id);
-
+            var item = await repo.GetByIdAsync(id);
             if (item is null)
-            {
-                return Results.NotFound(new
-                {
-                    message = $"Item con id {id} no encontrado"
-                });
-            }
-
+                return Results.NotFound(new { message = $"Item con id {id} no encontrado" });
             return Results.Ok(item);
-        })
-        .WithTags("Items");
+        }).WithTags("Items");
 
         // POST
-        app.MapPost("/items", (CreateItemRequest req) =>
+        app.MapPost("/items", async (CreateItemRequest req, ItemRepository repo) =>
         {
-            // Validaciones
             if (string.IsNullOrWhiteSpace(req.Name))
-            {
-                return Results.BadRequest(new
-                {
-                    message = "El nombre es obligatorio"
-                });
-            }
-
+                return Results.BadRequest(new { message = "El nombre es obligatorio" });
             if (req.Price < 0)
-            {
-                return Results.BadRequest(new
-                {
-                    message = "El precio no puede ser negativo"
-                });
-            }
-
+                return Results.BadRequest(new { message = "El precio no puede ser negativo" });
             if (req.Stock < 0)
-            {
-                return Results.BadRequest(new
-                {
-                    message = "El stock no puede ser negativo"
-                });
-            }
+                return Results.BadRequest(new { message = "El stock no puede ser negativo" });
 
-            var item = new Item
-            {
-                Id = idCounter++,
-                Name = req.Name,
-                Description = req.Description,
-                Price = (double)req.Price,
-                Stock = req.Stock,
-                CreatedAt = DateTime.UtcNow.ToString("o")
-            };
-
-            items.Add(item);
-
+            var item = await repo.CreateAsync(req);
             return Results.Created($"/items/{item.Id}", item);
-        })
-        .WithTags("Items");
+        }).WithTags("Items");
 
         // PUT
-        app.MapPut("/items/{id}", (long id, UpdateItemRequest req) =>
+        app.MapPut("/items/{id}", async (long id, UpdateItemRequest req, ItemRepository repo) =>
         {
-            var existing = items.FirstOrDefault(i => i.Id == id);
-
-            if (existing is null)
-            {
-                return Results.NotFound(new
-                {
-                    message = $"Item con id {id} no encontrado"
-                });
-            }
-
-            // Validaciones
             if (string.IsNullOrWhiteSpace(req.Name))
-            {
-                return Results.BadRequest(new
-                {
-                    message = "El nombre es obligatorio"
-                });
-            }
-
+                return Results.BadRequest(new { message = "El nombre es obligatorio" });
             if (req.Price < 0)
-            {
-                return Results.BadRequest(new
-                {
-                    message = "El precio no puede ser negativo"
-                });
-            }
-
+                return Results.BadRequest(new { message = "El precio no puede ser negativo" });
             if (req.Stock < 0)
-            {
-                return Results.BadRequest(new
-                {
-                    message = "El stock no puede ser negativo"
-                });
-            }
+                return Results.BadRequest(new { message = "El stock no puede ser negativo" });
 
-            var updated = existing with
-            {
-                Name = req.Name,
-                Description = req.Description,
-                Price = (double)req.Price,
-                Stock = req.Stock,
-                UpdatedAt = DateTime.UtcNow.ToString("o")
-            };
-
-            items.Remove(existing);
-            items.Add(updated);
-
-            return Results.Ok(updated);
-        })
-        .WithTags("Items");
+            var item = await repo.UpdateAsync(id, req);
+            if (item is null)
+                return Results.NotFound(new { message = $"Item con id {id} no encontrado" });
+            return Results.Ok(item);
+        }).WithTags("Items");
 
         // DELETE
-        app.MapDelete("/items/{id}", (long id) =>
+        app.MapDelete("/items/{id}", async (long id, ItemRepository repo) =>
         {
-            var item = items.FirstOrDefault(i => i.Id == id);
-
-            if (item is null)
-            {
-                return Results.NotFound(new
-                {
-                    message = $"Item con id {id} no encontrado"
-                });
-            }
-
-            items.Remove(item);
-
-            return Results.Ok(new
-            {
-                message = $"Item con id {id} eliminado correctamente"
-            });
-        })
-        .WithTags("Items");
+            var deleted = await repo.DeleteAsync(id);
+            if (!deleted)
+                return Results.NotFound(new { message = $"Item con id {id} no encontrado" });
+            return Results.Ok(new { message = $"Item con id {id} eliminado correctamente" });
+        }).WithTags("Items");
     }
 }
