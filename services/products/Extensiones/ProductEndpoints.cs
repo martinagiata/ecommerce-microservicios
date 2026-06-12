@@ -17,18 +17,18 @@ public static class ProductEndpoints
         {
             var product = await repo.GetByIdAsync(id);
             if (product is null)
-                return Results.NotFound(new { message = $"Product con id {id} no encontrado" });
+                return Results.NotFound(new { errorCode = "PRODUCT_NOT_FOUND", errorMessage = $"Product con id {id} no encontrado" });
             return Results.Ok(product);
         }).WithTags("Products");
 
         app.MapPost("/products", async (CreateProductRequest req, ProductRepository repo) =>
         {
             if (string.IsNullOrWhiteSpace(req.Name))
-                return Results.BadRequest(new { message = "El nombre es obligatorio" });
+                return Results.BadRequest(new { errorCode = "INVALID_NAME", errorMessage = "El nombre es obligatorio" });
             if (req.Price < 0)
-                return Results.BadRequest(new { message = "El precio no puede ser negativo" });
+                return Results.BadRequest(new { errorCode = "INVALID_PRICE", errorMessage = "El precio no puede ser negativo" });
             if (req.Stock < 0)
-                return Results.BadRequest(new { message = "El stock no puede ser negativo" });
+                return Results.BadRequest(new { errorCode = "INVALID_STOCK", errorMessage = "El stock no puede ser negativo" });
 
             var product = await repo.CreateAsync(req);
             return Results.Created($"/products/{product.Id}", product);
@@ -37,15 +37,15 @@ public static class ProductEndpoints
         app.MapPut("/products/{id}", async (long id, UpdateProductRequest req, ProductRepository repo) =>
         {
             if (string.IsNullOrWhiteSpace(req.Name))
-                return Results.BadRequest(new { message = "El nombre es obligatorio" });
+                return Results.BadRequest(new { errorCode = "INVALID_NAME", errorMessage = "El nombre es obligatorio" });
             if (req.Price < 0)
-                return Results.BadRequest(new { message = "El precio no puede ser negativo" });
+                return Results.BadRequest(new { errorCode = "INVALID_PRICE", errorMessage = "El precio no puede ser negativo" });
             if (req.Stock < 0)
-                return Results.BadRequest(new { message = "El stock no puede ser negativo" });
+                return Results.BadRequest(new { errorCode = "INVALID_STOCK", errorMessage = "El stock no puede ser negativo" });
 
             var product = await repo.UpdateAsync(id, req);
             if (product is null)
-                return Results.NotFound(new { message = $"Product con id {id} no encontrado" });
+                return Results.NotFound(new { errorCode = "PRODUCT_NOT_FOUND", errorMessage = $"Product con id {id} no encontrado" });
             return Results.Ok(product);
         }).WithTags("Products");
 
@@ -53,7 +53,7 @@ public static class ProductEndpoints
         {
             var deleted = await repo.DeleteAsync(id);
             if (!deleted)
-                return Results.NotFound(new { message = $"Product con id {id} no encontrado" });
+                return Results.NotFound(new { errorCode = "PRODUCT_NOT_FOUND", errorMessage = $"Product con id {id} no encontrado" });
             return Results.Ok(new { message = $"Product con id {id} eliminado correctamente" });
         }).WithTags("Products");
     }

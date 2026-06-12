@@ -17,7 +17,7 @@ public static class NotificationEndpoints
         {
             var notification = await repo.GetByIdAsync(id);
             if (notification is null)
-                return Results.NotFound(new { message = $"Notification con id {id} no encontrada" });
+                return Results.NotFound(new { errorCode = "NOTIFICATION_NOT_FOUND", errorMessage = $"Notification con id {id} no encontrada" });
             return Results.Ok(notification);
         }).WithTags("Notifications");
 
@@ -30,11 +30,11 @@ public static class NotificationEndpoints
         app.MapPost("/notifications", async (CreateNotificationRequest req, NotificationRepository repo) =>
         {
             if (req.UserId <= 0)
-                return Results.BadRequest(new { message = "UserId es obligatorio" });
+                return Results.BadRequest(new { errorCode = "INVALID_USER_ID", errorMessage = "UserId es obligatorio" });
             if (string.IsNullOrWhiteSpace(req.Type))
-                return Results.BadRequest(new { message = "El tipo es obligatorio" });
+                return Results.BadRequest(new { errorCode = "INVALID_TYPE", errorMessage = "El tipo es obligatorio" });
             if (string.IsNullOrWhiteSpace(req.Message))
-                return Results.BadRequest(new { message = "El mensaje es obligatorio" });
+                return Results.BadRequest(new { errorCode = "INVALID_MESSAGE", errorMessage = "El mensaje es obligatorio" });
 
             var notification = await repo.CreateAsync(req);
             return Results.Created($"/notifications/{notification.Id}", notification);
@@ -44,7 +44,7 @@ public static class NotificationEndpoints
         {
             var notification = await repo.MarkAsSentAsync(id);
             if (notification is null)
-                return Results.NotFound(new { message = $"Notification con id {id} no encontrada" });
+                return Results.NotFound(new { errorCode = "NOTIFICATION_NOT_FOUND", errorMessage = $"Notification con id {id} no encontrada" });
             return Results.Ok(notification);
         }).WithTags("Notifications");
     }

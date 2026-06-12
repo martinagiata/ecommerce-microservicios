@@ -18,7 +18,7 @@ public static class OrderEndpoints
         {
             var order = await repo.GetByIdAsync(id);
             if (order is null)
-                return Results.NotFound(new { message = $"Order con id {id} no encontrada" });
+                return Results.NotFound(new { errorCode = "ORDER_NOT_FOUND", errorMessage = $"Order con id {id} no encontrada" });
             return Results.Ok(order);
         }).WithTags("Orders");
 
@@ -31,14 +31,13 @@ public static class OrderEndpoints
         app.MapPost("/orders", async (CreateOrderRequest req, OrderRepository repo, UsersService usersService) =>
         {
             if (req.UserId <= 0)
-                return Results.BadRequest(new { message = "UserId es obligatorio" });
+                return Results.BadRequest(new { errorCode = "INVALID_USER_ID", errorMessage = "UserId es obligatorio" });
             if (req.Total < 0)
-                return Results.BadRequest(new { message = "El total no puede ser negativo" });
+                return Results.BadRequest(new { errorCode = "INVALID_TOTAL", errorMessage = "El total no puede ser negativo" });
 
-            // Consulta datos del usuario via HTTP (cumple restriccion de independencia)
             var user = await usersService.GetUserByIdAsync(req.UserId);
             if (user is null)
-                return Results.NotFound(new { message = $"Usuario con id {req.UserId} no encontrado" });
+                return Results.NotFound(new { errorCode = "USER_NOT_FOUND", errorMessage = $"Usuario con id {req.UserId} no encontrado" });
 
             var order = await repo.CreateAsync(req, user);
             return Results.Created($"/orders/{order.Id}", order);
@@ -48,11 +47,11 @@ public static class OrderEndpoints
         {
             var validStatuses = new[] { "pending", "confirmed", "shipped", "delivered", "cancelled" };
             if (!validStatuses.Contains(req.Status))
-                return Results.BadRequest(new { message = "Estado inválido" });
+                return Results.BadRequest(new { errorCode = "INVALID_STATUS", errorMessage = "Estado inválido" });
 
             var order = await repo.UpdateStatusAsync(id, req.Status);
             if (order is null)
-                return Results.NotFound(new { message = $"Order con id {id} no encontrada" });
+                return Results.NotFound(new { errorCode = "ORDER_NOT_FOUND", errorMessage = $"Order con id {id} no encontrada" });
             return Results.Ok(order);
         }).WithTags("Orders");
     }
