@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/services/">
+    <Project Path="services/Cart/Cart.csproj" />
+    <Project Path="services/Notifications/Notifications.csproj" />
+    <Project Path="services/Orders/Orders.csproj" />
+    <Project Path="services/Users/Users.csproj" />
+  </Folder>
+  <Folder Name="/services/products/">
+    <Project Path="services/products/Products.csproj" />
+  </Folder>
+  <Project Path="MiniApi/MiniApi.csproj" />
+</Solution>
