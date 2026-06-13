@@ -117,4 +117,4 @@ Todos los endpoints devuelven errores con el formato ProblemDetails + errorCode:
 ## Integrantes
 
 - Martina Giata Ganellis
-- Ornella
+- Ornella Castronuovo
