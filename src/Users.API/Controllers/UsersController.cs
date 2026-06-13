@@ -25,12 +25,9 @@ public class UsersController(IUserService service) : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            var errors = ModelState.Values
-                .SelectMany(v => v.Errors)
-                .Select(e => e.ErrorMessage);
+            var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
             throw new ValidationException("USR-002", string.Join("; ", errors));
         }
-
         var user = await service.RegisterAsync(req);
         return CreatedAtAction(nameof(Register), new { id = user.Id }, user);
     }
@@ -49,13 +46,22 @@ public class UsersController(IUserService service) : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            var errors = ModelState.Values
-                .SelectMany(v => v.Errors)
-                .Select(e => e.ErrorMessage);
+            var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
             throw new ValidationException("USR-002", string.Join("; ", errors));
         }
-
         var user = await service.LoginAsync(req);
+        return Ok(user);
+    }
+
+    /// <summary>Obtiene un usuario por su Id (uso interno entre servicios).</summary>
+    /// <response code="200">Usuario encontrado</response>
+    /// <response code="404">Usuario no encontrado (USR-002)</response>
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(UserResponse), 200)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var user = await service.GetByIdAsync(id);
         return Ok(user);
     }
 }
