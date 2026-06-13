@@ -1,13 +1,4 @@
 <Solution>
-  <Folder Name="/services/">
-    <Project Path="services/Cart/Cart.csproj" />
-    <Project Path="services/Notifications/Notifications.csproj" />
-    <Project Path="services/Orders/Orders.csproj" />
-    <Project Path="services/Users/Users.csproj" />
-  </Folder>
-  <Folder Name="/services/products/">
-    <Project Path="services/products/Products.csproj" />
-  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Cart.API/Cart.API.csproj" />
     <Project Path="src/Notifications.API/Notifications.API.csproj" />
@@ -15,5 +6,4 @@
     <Project Path="src/Products.API/Products.API.csproj" />
     <Project Path="src/Users.API/Users.API.csproj" />
   </Folder>
-  <Project Path="MiniApi/MiniApi.csproj" />
 </Solution>
