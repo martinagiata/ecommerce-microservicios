@@ -4,38 +4,39 @@ Trabajo práctico de **Arquitectura y Diseño de Software** — implementación 
 
 ## Estructura del repositorio
 
+```
 ecommerce-microservicios/
-├── ECommerce.slnx # Solución que agrupa todos los proyectos
+├── ECommerce.slnx          # Solución que agrupa todos los proyectos
 ├── src/
-│ ├── Products.API/ # Catálogo y stock
-│ ├── Users.API/ # Registro y autenticación
-│ ├── Orders.API/ # Pedidos y estados
-│ ├── Cart.API/ # Carrito de compras
-│ └── Notifications.API/ # Alertas y notificaciones
-├── docs/ # Diagrama de arquitectura y capturas
+│   ├── Products.API/       # Catálogo y stock
+│   ├── Users.API/          # Registro y autenticación
+│   ├── Orders.API/         # Pedidos y estados
+│   ├── Cart.API/           # Carrito de compras
+│   └── Notifications.API/  # Alertas y notificaciones
+├── docs/                   # Diagrama de arquitectura y capturas
 └── README.md
-
+```
 
 ## Diagrama de arquitectura
 
-┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
-│ Products.API │ │ Users.API │ │ Cart.API │
-│ :5280 │ │ :5012 │ │ :5006 │
-│ products.db │ │ users.db │ │ cart.db │
-└────────▲────────┘ └────────▲────────┘ └────────┬────────┘
-│ │ │
-│ GET /api/products/{id} │
-├─────────────────────┼─────────────────────┘
-│ │ GET /api/users/{id}
-┌────────┴────────┐ ┌────────┴────────┐
-│ Orders.API │ │Notifications.API│
-│ :5080 │ │ :5038 │
-│ orders.db │ │notifications.db │
-└─────────────────┘ └─────────────────┘
+```
+   ┌─────────────────┐   ┌─────────────────┐   ┌─────────────────┐
+   │  Products.API   │   │    Users.API    │   │    Cart.API     │
+   │      :5280      │   │      :5012      │   │      :5006      │
+   │   products.db   │   │    users.db     │   │     cart.db     │
+   └────────▲────────┘   └────────▲────────┘   └────────┬────────┘
+            │                     │                     │
+            │  GET /api/products/{id}                   │
+            ├─────────────────────┼─────────────────────┘
+            │                     │  GET /api/users/{id}
+   ┌────────┴────────┐   ┌────────┴────────┐
+   │   Orders.API    │   │Notifications.API│
+   │      :5080      │   │    orders.db    │
+   └─────────────────┘   └─────────────────┘
 
-Cada servicio tiene su propia base SQLite.
-Las flechas indican consumo via HTTP/JSON (nunca acceso directo a otra DB).
-
+   Cada servicio tiene su propia base SQLite.
+   Las flechas indican consumo via HTTP/JSON (nunca acceso directo a otra DB).
+```
 
 Versión en imagen: [`docs/arquitectura.svg`](docs/arquitectura.svg)
 
@@ -48,20 +49,11 @@ Versión en imagen: [`docs/arquitectura.svg`](docs/arquitectura.svg)
 Cada microservicio es independiente. Abrí una terminal por cada uno:
 
 ```bash
-# Products
 cd src/Products.API && dotnet run
-
-# Users
 cd src/Users.API && dotnet run
-
-# Orders (requiere Products y Users corriendo)
-cd src/Orders.API && dotnet run
-
-# Cart (requiere Products corriendo)
-cd src/Cart.API && dotnet run
-
-# Notifications (requiere Users corriendo)
-cd src/Notifications.API && dotnet run
+cd src/Orders.API && dotnet run        # requiere Products y Users corriendo
+cd src/Cart.API && dotnet run          # requiere Products corriendo
+cd src/Notifications.API && dotnet run # requiere Users corriendo
 ```
 
 ## Tabla de puertos
