@@ -1,20 +1,43 @@
-# NovaShop MVP
+# E-Commerce - Arquitectura de Microservicios
 
-Proyecto de arquitectura de software para el TP de **Construcción de Aplicaciones Informáticas (CAI)** — UBA FCE, cátedra Méndez.
-
-Migración del monolito "El Núcleo" de NovaShop hacia una arquitectura de **microservicios** independientes, comunicados por HTTP/JSON.
+Trabajo práctico de **Arquitectura y Diseño de Software** — implementación de un sistema de E-Commerce basado en microservicios REST independientes con C# / .NET Core 10.
 
 ## Estructura del repositorio
-novashop-mvp/
-├── novashop-mvp.slnx       # Solución que agrupa todos los proyectos
+
+ecommerce-microservicios/
+├── ECommerce.slnx # Solución que agrupa todos los proyectos
 ├── src/
-│   ├── Products.API/       # Catálogo y stock (puerto 5280)
-│   ├── Users.API/          # Registro y autenticación (puerto 5012)
-│   ├── Orders.API/         # Pedidos y estados (puerto 5080)
-│   ├── Cart.API/           # Carrito de compras (puerto 5006)
-│   └── Notifications.API/  # Alertas y notificaciones (puerto 5038)
-├── docs/                   # Diagrama de arquitectura
+│ ├── Products.API/ # Catálogo y stock
+│ ├── Users.API/ # Registro y autenticación
+│ ├── Orders.API/ # Pedidos y estados
+│ ├── Cart.API/ # Carrito de compras
+│ └── Notifications.API/ # Alertas y notificaciones
+├── docs/ # Diagrama de arquitectura y capturas
 └── README.md
+
+
+## Diagrama de arquitectura
+
+┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
+│ Products.API │ │ Users.API │ │ Cart.API │
+│ :5280 │ │ :5012 │ │ :5006 │
+│ products.db │ │ users.db │ │ cart.db │
+└────────▲────────┘ └────────▲────────┘ └────────┬────────┘
+│ │ │
+│ GET /api/products/{id} │
+├─────────────────────┼─────────────────────┘
+│ │ GET /api/users/{id}
+┌────────┴────────┐ ┌────────┴────────┐
+│ Orders.API │ │Notifications.API│
+│ :5080 │ │ :5038 │
+│ orders.db │ │notifications.db │
+└─────────────────┘ └─────────────────┘
+
+Cada servicio tiene su propia base SQLite.
+Las flechas indican consumo via HTTP/JSON (nunca acceso directo a otra DB).
+
+
+Versión en imagen: [`docs/arquitectura.svg`](docs/arquitectura.svg)
 
 ## Requisitos
 
@@ -27,39 +50,31 @@ Cada microservicio es independiente. Abrí una terminal por cada uno:
 ```bash
 # Products
 cd src/Products.API && dotnet run
-# http://localhost:5280/swagger
 
 # Users
 cd src/Users.API && dotnet run
-# http://localhost:5012/swagger
 
 # Orders (requiere Products y Users corriendo)
 cd src/Orders.API && dotnet run
-# http://localhost:5080/swagger
 
 # Cart (requiere Products corriendo)
 cd src/Cart.API && dotnet run
-# http://localhost:5006/swagger
 
 # Notifications (requiere Users corriendo)
 cd src/Notifications.API && dotnet run
-# http://localhost:5038/swagger
 ```
 
-## Endpoints disponibles por servicio
+## Tabla de puertos
 
-| Endpoint | Descripción |
-|---|---|
-| `/swagger` | Documentación interactiva de la API |
-| `/health` | Estado general del servicio |
-| `/health/ready` | Estado de la base de datos |
-| `/health/live` | Liveness check |
+| Servicio | Puerto | Swagger | Descripción |
+|---|---|---|---|
+| Products.API | 5280 | http://localhost:5280/swagger | Catálogo de productos y stock |
+| Users.API | 5012 | http://localhost:5012/swagger | Registro, login y bloqueo de usuarios |
+| Orders.API | 5080 | http://localhost:5080/swagger | Órdenes con items, total y estados |
+| Cart.API | 5006 | http://localhost:5006/swagger | Carrito de compras por usuario |
+| Notifications.API | 5038 | http://localhost:5038/swagger | Envío y consulta de notificaciones |
 
-## Restricciones de diseño cumplidas
-
-1. **Independencia de datos**: cada servicio tiene su propia base SQLite. Orders y Notifications consultan otros servicios via HTTP, nunca acceden a sus bases de datos directamente.
-2. **Tecnologías mixtas**: cada servicio es un proyecto .NET independiente, reemplazable sin afectar a los demás.
-3. **Comunicación estándar**: todos los servicios exponen APIs REST sobre HTTP/JSON.
+Cada servicio expone además: `/health`, `/health/ready` y `/health/live`.
 
 ## Formato de errores
 
@@ -78,7 +93,7 @@ Todos los endpoints devuelven errores con el formato ProblemDetails + errorCode:
 }
 ```
 
-## Catálogo de errores
+## Tabla de códigos de error
 
 | Código | HTTP | Descripción |
 |---|---|---|
@@ -91,30 +106,34 @@ Todos los endpoints devuelven errores con el formato ProblemDetails + errorCode:
 | USR-003 | 401 | Credenciales incorrectas |
 | USR-004 | 403 | Usuario bloqueado por intentos fallidos |
 | USR-005 | 403 | Usuario bloqueado por fraude |
+| USR-006 | 500 | Error interno en Users |
 | ORD-001 | 404 | Orden no encontrada |
 | ORD-002 | 400 | Datos de la orden inválidos |
 | ORD-003 | 404 | Usuario no encontrado al crear orden |
 | ORD-004 | 404 | Producto no encontrado al crear orden |
 | ORD-005 | 422 | Stock insuficiente |
 | ORD-006 | 409 | Transición de estado inválida |
+| ORD-007 | 500 | Error interno en Orders |
 | CRT-001 | 404 | Carrito no encontrado |
 | CRT-002 | 404 | Producto no encontrado en carrito |
 | CRT-003 | 422 | Stock insuficiente en carrito |
 | CRT-004 | 400 | Cantidad inválida |
+| CRT-005 | 500 | Error interno en Cart |
 | NTF-001 | 404 | Usuario no encontrado en notificación |
 | NTF-002 | 400 | Datos de notificación inválidos |
 | NTF-003 | 404 | No hay notificaciones para el usuario |
+| NTF-004 | 500 | Error interno en Notifications |
 
 ## Stack tecnológico
 
 - .NET 10 Web API con Controllers
-- Serilog (consola + archivo JSON)
+- Serilog (consola + archivo JSON en `logs/`)
 - SQLite + Dapper (persistencia)
-- Swagger / Swashbuckle (documentación)
-- IExceptionHandler + ProblemDetails (manejo de errores)
-- Correlation ID propagado entre servicios
+- Swagger / Swashbuckle (documentación con XML comments)
+- IExceptionHandler + ProblemDetails (manejo global de errores)
+- Correlation ID (`X-Correlation-Id`) propagado entre servicios
+- Health Checks (`/health`, `/health/ready`, `/health/live`)
 
-## Integrantes
+## Integrante
 
 - Martina Giata Ganellis
-- Ornella Castronuovo
