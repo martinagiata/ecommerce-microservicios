@@ -31,7 +31,8 @@ ecommerce-microservicios/
             │                     │  GET /api/users/{id}
    ┌────────┴────────┐   ┌────────┴────────┐
    │   Orders.API    │   │Notifications.API│
-   │      :5080      │   │    orders.db    │
+   │      :5080      │   │      :5038      │
+   │    orders.db    │   │notifications.db │
    └─────────────────┘   └─────────────────┘
 
    Cada servicio tiene su propia base SQLite.
