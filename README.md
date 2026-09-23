@@ -127,6 +127,7 @@ Todos los endpoints devuelven errores con el formato ProblemDetails + errorCode:
 - Correlation ID (`X-Correlation-Id`) propagado entre servicios
 - Health Checks (`/health`, `/health/ready`, `/health/live`)
 
-## Integrante
+## Integrantes
 
-- Martina Giata Ganellis
+- Martina Giataganellis
+- Francisco Obaya
