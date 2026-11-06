@@ -91,7 +91,7 @@ public class OrderService : IOrderService
             FROM orders WHERE id = @Id
         """, new { Id = id.ToString() });
 
-        if (row is null) throw new NotFoundException("ORD-001", "Orden no encontrada.");
+        if (row is null) throw new NotFoundException(ErrorCodes.ORD_001, "Orden no encontrada.");
 
         var items = await GetItemsAsync(conn, (string)row.Id);
         return MapResponse(row, items);
@@ -100,7 +100,7 @@ public class OrderService : IOrderService
     public async Task<OrderResponse> CreateAsync(CreateOrderRequest req, string correlationId)
     {
         if (req.Items == null || req.Items.Count == 0)
-            throw new ValidationException("ORD-002", "Los datos de la orden son inválidos.");
+            throw new ValidationException(ErrorCodes.ORD_002, "Los datos de la orden son inválidos.");
 
         // Verificar usuario via HTTP
         _httpClient.DefaultRequestHeaders.Remove("X-Correlation-Id");
@@ -108,7 +108,7 @@ public class OrderService : IOrderService
 
         var userResp = await _httpClient.GetAsync($"{_usersUrl}/api/users/{req.UsuarioId}");
         if (!userResp.IsSuccessStatusCode)
-            throw new NotFoundException("ORD-003", "Usuario no encontrado al crear la orden.");
+            throw new NotFoundException(ErrorCodes.ORD_003, "Usuario no encontrado al crear la orden.");
 
         // Verificar productos y stock via HTTP
         var itemsData = new List<(OrderItemRequest req, ProductInfo product)>();
@@ -116,11 +116,11 @@ public class OrderService : IOrderService
         {
             var prodResp = await _httpClient.GetAsync($"{_productsUrl}/api/products/{item.ProductoId}");
             if (!prodResp.IsSuccessStatusCode)
-                throw new NotFoundException("ORD-004", $"Producto no encontrado al crear la orden.");
+                throw new NotFoundException(ErrorCodes.ORD_004, $"Producto no encontrado al crear la orden.");
 
             var product = await prodResp.Content.ReadFromJsonAsync<ProductInfo>();
             if (product!.Stock < item.Cantidad)
-                throw new BusinessRuleException("ORD-005",
+                throw new BusinessRuleException(ErrorCodes.ORD_005,
                     $"Stock insuficiente para '{product.Nombre}'. Disponible: {product.Stock}, solicitado: {item.Cantidad}.",
                     statusCode: 422);
 
@@ -151,12 +151,12 @@ public class OrderService : IOrderService
     public async Task<OrderResponse> UpdateStatusAsync(Guid id, string estado)
     {
         if (!ValidStatuses.Contains(estado))
-            throw new ValidationException("ORD-002", "Los datos de la orden son inválidos.");
+            throw new ValidationException(ErrorCodes.ORD_002, "Los datos de la orden son inválidos.");
 
         var order = await GetByIdAsync(id);
 
         if (!ValidTransitions[order.Estado].Contains(estado))
-            throw new BusinessRuleException("ORD-006",
+            throw new BusinessRuleException(ErrorCodes.ORD_006,
                 $"Una orden en estado '{order.Estado}' no puede pasar a '{estado}'.", statusCode: 409);
 
         using var conn = CreateConnection();

@@ -28,7 +28,7 @@ public class NotificationsController(INotificationService service) : ControllerB
         if (!ModelState.IsValid)
         {
             var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-            throw new ValidationException("NTF-002", string.Join("; ", errors));
+            throw new ValidationException(ErrorCodes.NTF_002, string.Join("; ", errors));
         }
         var notification = await service.SendAsync(req, CorrelationId);
         return CreatedAtAction(nameof(GetByUserId), new { userId = notification.UsuarioId }, notification);

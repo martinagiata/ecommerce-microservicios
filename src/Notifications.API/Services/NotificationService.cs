@@ -45,14 +45,14 @@ public class NotificationService : INotificationService
     {
         var validTipos = new[] { "Email", "Push", "SMS" };
         if (!validTipos.Contains(req.Tipo))
-            throw new ValidationException("NTF-002", "Los datos de la notificacion son invalidos.");
+            throw new ValidationException(ErrorCodes.NTF_002, "Los datos de la notificacion son invalidos.");
 
         _httpClient.DefaultRequestHeaders.Remove("X-Correlation-Id");
         _httpClient.DefaultRequestHeaders.Add("X-Correlation-Id", correlationId);
 
         var userResp = await _httpClient.GetAsync($"{_usersUrl}/api/users/{req.UsuarioId}");
         if (!userResp.IsSuccessStatusCode)
-            throw new NotFoundException("NTF-001", "El usuario destinatario no fue encontrado.");
+            throw new NotFoundException(ErrorCodes.NTF_001, "El usuario destinatario no fue encontrado.");
 
         var id = Guid.NewGuid();
         var now = DateTime.UtcNow.ToString("o");
@@ -75,7 +75,7 @@ public class NotificationService : INotificationService
 
         var list = rows.ToList();
         if (!list.Any())
-            throw new NotFoundException("NTF-003", "No se encontraron notificaciones para el usuario.");
+            throw new NotFoundException(ErrorCodes.NTF_003, "No se encontraron notificaciones para el usuario.");
 
         return list.Select(r => new NotificationResponse
         {
