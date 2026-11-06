@@ -65,7 +65,7 @@ public class UserService : IUserService
             new { Id = id.ToString() });
 
         if (row is null)
-            throw new NotFoundException("USR-002", $"Usuario con id {id} no encontrado.");
+            throw new NotFoundException(ErrorCodes.USR_002, $"Usuario con id {id} no encontrado.");
 
         return ToResponse(row);
     }
@@ -78,7 +78,7 @@ public class UserService : IUserService
             "SELECT id FROM users WHERE email = @Email", new { req.Email });
 
         if (existing is not null)
-            throw new BusinessRuleException("USR-001", $"El email '{req.Email}' ya esta registrado.", statusCode: 409);
+            throw new BusinessRuleException(ErrorCodes.USR_001, $"El email '{req.Email}' ya esta registrado.", statusCode: 409);
 
         var id = Guid.NewGuid();
         var hash = HashPassword(req.Password);
@@ -104,13 +104,13 @@ public class UserService : IUserService
             new { req.Email });
 
         if (row is null)
-            throw new UnauthorizedException("USR-003", "Credenciales incorrectas.");
+            throw new UnauthorizedException(ErrorCodes.USR_003, "Credenciales incorrectas.");
 
         if ((long)row.Activo == 0)
         {
             if ((long)row.IntentosFallidos >= 3)
-                throw new ForbiddenException("USR-004", "Su cuenta fue bloqueada por superar el maximo de intentos fallidos. Contacte a soporte.");
-            throw new ForbiddenException("USR-005", "Su cuenta fue suspendida por razones de seguridad. Contacte a soporte.");
+                throw new ForbiddenException(ErrorCodes.USR_004, "Su cuenta fue bloqueada por superar el maximo de intentos fallidos. Contacte a soporte.");
+            throw new ForbiddenException(ErrorCodes.USR_005, "Su cuenta fue suspendida por razones de seguridad. Contacte a soporte.");
         }
 
         var hash = HashPassword(req.Password);
@@ -124,9 +124,9 @@ public class UserService : IUserService
                 new { Intentos = intentos, Activo = bloquear ? 0 : 1, req.Email });
 
             if (bloquear)
-                throw new ForbiddenException("USR-004", "Su cuenta fue bloqueada por superar el maximo de intentos fallidos. Contacte a soporte.");
+                throw new ForbiddenException(ErrorCodes.USR_004, "Su cuenta fue bloqueada por superar el maximo de intentos fallidos. Contacte a soporte.");
 
-            throw new UnauthorizedException("USR-003", "Credenciales incorrectas.");
+            throw new UnauthorizedException(ErrorCodes.USR_003, "Credenciales incorrectas.");
         }
 
         await conn.ExecuteAsync(

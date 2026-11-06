@@ -46,7 +46,7 @@ public class ProductsController(IProductService service) : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateProductRequest req)
     {
         if (!ModelState.IsValid)
-            throw new ValidationException("PRD-002", BuildValidationMessage());
+            throw new ValidationException(ErrorCodes.PRD_002, BuildValidationMessage());
 
         var product = await service.CreateAsync(req);
         return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
@@ -63,7 +63,7 @@ public class ProductsController(IProductService service) : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProductRequest req)
     {
         if (!ModelState.IsValid)
-            throw new ValidationException("PRD-002", BuildValidationMessage());
+            throw new ValidationException(ErrorCodes.PRD_002, BuildValidationMessage());
 
         var product = await service.UpdateAsync(id, req);
         return Ok(product);

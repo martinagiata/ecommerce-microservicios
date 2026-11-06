@@ -26,7 +26,7 @@ public class UsersController(IUserService service) : ControllerBase
         if (!ModelState.IsValid)
         {
             var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-            throw new ValidationException("USR-002", string.Join("; ", errors));
+            throw new ValidationException(ErrorCodes.USR_002, string.Join("; ", errors));
         }
         var user = await service.RegisterAsync(req);
         return CreatedAtAction(nameof(Register), new { id = user.Id }, user);
@@ -47,7 +47,7 @@ public class UsersController(IUserService service) : ControllerBase
         if (!ModelState.IsValid)
         {
             var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-            throw new ValidationException("USR-002", string.Join("; ", errors));
+            throw new ValidationException(ErrorCodes.USR_002, string.Join("; ", errors));
         }
         var user = await service.LoginAsync(req);
         return Ok(user);
