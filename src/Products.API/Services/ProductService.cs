@@ -94,7 +94,7 @@ public class ProductService : IProductService
     {
         var product = await FindAsync(id);
         if (product is null)
-            throw new NotFoundException("PRD-001", "Producto no encontrado.");
+            throw new NotFoundException(ErrorCodes.PRD_001, "Producto no encontrado.");
         return product;
     }
 
@@ -107,7 +107,7 @@ public class ProductService : IProductService
             new { req.Nombre, req.Categoria });
 
         if (existingId is not null)
-            throw new BusinessRuleException("PRD-003", $"Ya existe un producto con ese nombre en la categoría '{req.Categoria}'.", statusCode: 409);
+            throw new BusinessRuleException(ErrorCodes.PRD_003, $"Ya existe un producto con ese nombre en la categoría '{req.Categoria}'.", statusCode: 409);
 
         var id = Guid.NewGuid();
         var now = DateTime.UtcNow.ToString("o");
@@ -133,7 +133,7 @@ public class ProductService : IProductService
     {
         var existing = await FindAsync(id);
         if (existing is null)
-            throw new NotFoundException("PRD-001", "Producto no encontrado.");
+            throw new NotFoundException(ErrorCodes.PRD_001, "Producto no encontrado.");
 
         using var conn = CreateConnection();
         await conn.ExecuteAsync("""
@@ -157,7 +157,7 @@ public class ProductService : IProductService
     {
         var existing = await FindAsync(id);
         if (existing is null)
-            throw new NotFoundException("PRD-001", "Producto no encontrado.");
+            throw new NotFoundException(ErrorCodes.PRD_001, "Producto no encontrado.");
 
         using var conn = CreateConnection();
         await conn.ExecuteAsync("DELETE FROM products WHERE id = @Id", new { Id = id.ToString() });

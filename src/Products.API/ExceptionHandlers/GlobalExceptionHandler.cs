@@ -1,3 +1,4 @@
+using Products.API.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace Products.API.ExceptionHandlers;
@@ -10,7 +11,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
 
         context.Response.StatusCode = 500;
         await context.Response.WriteAsJsonAsync(
-            ProblemResponseFactory.Build(context, 500, "PRD-005", "Error interno al procesar el producto."),
+            ProblemResponseFactory.Build(context, 500, ErrorCodes.PRD_005, "Error interno al procesar el producto."),
             cancellationToken: cancellationToken);
         return true;
     }
