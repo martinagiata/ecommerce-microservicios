@@ -117,6 +117,18 @@ Todos los endpoints devuelven errores con el formato ProblemDetails + errorCode:
 | NTF-003 | 404 | No hay notificaciones para el usuario |
 | NTF-004 | 500 | Error interno en Notifications |
 
+## Capturas de Swagger
+
+Ejemplos de respuestas de error con el formato ProblemDetails completo (`errorCode`, `errorMessage` y `correlationId`), ubicados en [`docs/capturas/`](docs/capturas/):
+
+| Servicio | Código | HTTP | Captura |
+|---|---|---|---|
+| Products | PRD-001 | 404 | [PRD-001.png](docs/capturas/PRD-001.png) |
+| Users | USR-002 | 404 | [USR-002.png](docs/capturas/USR-002.png) |
+| Orders | ORD-001 | 404 | [ORD-001.png](docs/capturas/ORD-001.png) |
+| Cart | CRT-001 | 404 | [CRT-001.png](docs/capturas/CRT-001.png) |
+| Notifications | NTF-003 | 404 | [NTF-003.png](docs/capturas/NTF-003.png) |
+
 ## Stack tecnológico
 
 - .NET 10 Web API con Controllers
