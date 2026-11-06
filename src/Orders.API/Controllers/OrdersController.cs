@@ -50,7 +50,7 @@ public class OrdersController(IOrderService service) : ControllerBase
         if (!ModelState.IsValid)
         {
             var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-            throw new ValidationException("ORD-002", string.Join("; ", errors));
+            throw new ValidationException(ErrorCodes.ORD_002, string.Join("; ", errors));
         }
 
         var correlationId = HttpContext.Items["CorrelationId"] as string ?? HttpContext.TraceIdentifier;
@@ -73,7 +73,7 @@ public class OrdersController(IOrderService service) : ControllerBase
         if (!ModelState.IsValid)
         {
             var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-            throw new ValidationException("ORD-002", string.Join("; ", errors));
+            throw new ValidationException(ErrorCodes.ORD_002, string.Join("; ", errors));
         }
 
         var order = await service.UpdateStatusAsync(id, req.Estado);

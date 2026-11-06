@@ -42,7 +42,7 @@ public class CartController(ICartService service) : ControllerBase
         if (!ModelState.IsValid)
         {
             var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-            throw new ValidationException("CRT-004", string.Join("; ", errors));
+            throw new ValidationException(ErrorCodes.CRT_004, string.Join("; ", errors));
         }
         var cart = await service.AddItemAsync(userId, req, CorrelationId);
         return Ok(cart);
@@ -63,7 +63,7 @@ public class CartController(ICartService service) : ControllerBase
         if (!ModelState.IsValid)
         {
             var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-            throw new ValidationException("CRT-004", string.Join("; ", errors));
+            throw new ValidationException(ErrorCodes.CRT_004, string.Join("; ", errors));
         }
         var cart = await service.UpdateItemAsync(userId, productId, req, CorrelationId);
         return Ok(cart);

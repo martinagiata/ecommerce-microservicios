@@ -62,7 +62,7 @@ public class CartService : ICartService
 
         var list = rows.ToList();
         if (!list.Any())
-            throw new NotFoundException("CRT-001", "Carrito no encontrado.");
+            throw new NotFoundException(ErrorCodes.CRT_001, "Carrito no encontrado.");
 
         return new CartResponse
         {
@@ -84,14 +84,14 @@ public class CartService : ICartService
     public async Task<CartResponse> AddItemAsync(Guid userId, AddItemRequest req, string correlationId)
     {
         if (req.Cantidad <= 0)
-            throw new ValidationException("CRT-004", "Cantidad invalida.");
+            throw new ValidationException(ErrorCodes.CRT_004, "Cantidad invalida.");
 
         var product = await GetProductAsync(req.ProductoId, correlationId);
         if (product is null)
-            throw new NotFoundException("CRT-002", "Producto no encontrado.");
+            throw new NotFoundException(ErrorCodes.CRT_002, "Producto no encontrado.");
 
         if (product.Stock < req.Cantidad)
-            throw new BusinessRuleException("CRT-003",
+            throw new BusinessRuleException(ErrorCodes.CRT_003,
                 $"Stock insuficiente. Disponible: {product.Stock}, solicitado: {req.Cantidad}.", statusCode: 422);
 
         using var conn = CreateConnection();
@@ -110,14 +110,14 @@ public class CartService : ICartService
     public async Task<CartResponse> UpdateItemAsync(Guid userId, Guid productId, UpdateItemRequest req, string correlationId)
     {
         if (req.Cantidad <= 0)
-            throw new ValidationException("CRT-004", "Cantidad invalida.");
+            throw new ValidationException(ErrorCodes.CRT_004, "Cantidad invalida.");
 
         var product = await GetProductAsync(productId, correlationId);
         if (product is null)
-            throw new NotFoundException("CRT-002", "Producto no encontrado.");
+            throw new NotFoundException(ErrorCodes.CRT_002, "Producto no encontrado.");
 
         if (product.Stock < req.Cantidad)
-            throw new BusinessRuleException("CRT-003",
+            throw new BusinessRuleException(ErrorCodes.CRT_003,
                 $"Stock insuficiente. Disponible: {product.Stock}, solicitado: {req.Cantidad}.", statusCode: 422);
 
         using var conn = CreateConnection();
@@ -128,7 +128,7 @@ public class CartService : ICartService
             new { UserId = userId.ToString(), ProductoId = productId.ToString(), req.Cantidad, FechaActualizacion = now });
 
         if (rows == 0)
-            throw new NotFoundException("CRT-001", "Carrito no encontrado.");
+            throw new NotFoundException(ErrorCodes.CRT_001, "Carrito no encontrado.");
 
         return await BuildResponseAsync(userId);
     }
@@ -141,7 +141,7 @@ public class CartService : ICartService
             new { UserId = userId.ToString(), ProductoId = productId.ToString() });
 
         if (rows == 0)
-            throw new NotFoundException("CRT-001", "Carrito no encontrado.");
+            throw new NotFoundException(ErrorCodes.CRT_001, "Carrito no encontrado.");
     }
 
     public async Task DeleteCartAsync(Guid userId)
@@ -152,6 +152,6 @@ public class CartService : ICartService
             new { UserId = userId.ToString() });
 
         if (rows == 0)
-            throw new NotFoundException("CRT-001", "Carrito no encontrado.");
+            throw new NotFoundException(ErrorCodes.CRT_001, "Carrito no encontrado.");
     }
 }
