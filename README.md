@@ -93,6 +93,7 @@ Todos los endpoints devuelven errores con el formato ProblemDetails + errorCode:
 | PRD-001 | 404 | Producto no encontrado |
 | PRD-002 | 400 | Datos del producto inválidos |
 | PRD-003 | 409 | Producto duplicado en la categoría |
+| PRD-004 | 409 | Producto con órdenes activas no puede eliminarse |
 | PRD-005 | 500 | Error interno en Products |
 | USR-001 | 409 | Email ya registrado |
 | USR-002 | 400 | Datos del usuario inválidos |
@@ -124,10 +125,11 @@ Ejemplos de respuestas de error con el formato ProblemDetails completo (`errorCo
 | Servicio | Código | HTTP | Captura |
 |---|---|---|---|
 | Products | PRD-001 | 404 | [PRD-001.png](docs/capturas/PRD-001.png) |
-| Users | USR-002 | 404 | [USR-002.png](docs/capturas/USR-002.png) |
+| Users | USR-002 | 400 | [USR-002.png](docs/capturas/USR-002.png) |
 | Orders | ORD-001 | 404 | [ORD-001.png](docs/capturas/ORD-001.png) |
 | Cart | CRT-001 | 404 | [CRT-001.png](docs/capturas/CRT-001.png) |
 | Notifications | NTF-003 | 404 | [NTF-003.png](docs/capturas/NTF-003.png) |
+| Products | PRD-004 | 409 | [PRD-004.png](docs/capturas/PRD-004.png) |
 
 ## Stack tecnológico
 

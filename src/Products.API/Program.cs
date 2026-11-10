@@ -34,7 +34,7 @@ builder.Services.AddSwaggerGen(c =>
     if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
 });
 
-builder.Services.AddSingleton<IProductService, ProductService>();
+builder.Services.AddHttpClient<IProductService, ProductService>();
 
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();

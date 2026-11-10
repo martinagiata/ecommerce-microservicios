@@ -72,12 +72,15 @@ public class ProductsController(IProductService service) : ControllerBase
     /// <summary>Elimina un producto.</summary>
     /// <response code="204">Producto eliminado</response>
     /// <response code="404">Producto no encontrado (PRD-001)</response>
+    /// <response code="409">Producto con ordenes activas (PRD-004)</response>
     [HttpDelete("{id}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(404)]
+    [ProducesResponseType(409)]
     public async Task<IActionResult> Delete(Guid id)
     {
-        await service.DeleteAsync(id);
+        var correlationId = HttpContext.Items["CorrelationId"] as string ?? HttpContext.TraceIdentifier;
+        await service.DeleteAsync(id, correlationId);
         return NoContent();
     }
 

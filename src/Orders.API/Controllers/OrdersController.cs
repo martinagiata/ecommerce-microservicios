@@ -13,13 +13,13 @@ namespace Orders.API.Controllers;
 [Tags("Orders")]
 public class OrdersController(IOrderService service) : ControllerBase
 {
-    /// <summary>Lista las ordenes, con filtro opcional por usuarioId.</summary>
+    /// <summary>Lista las ordenes, con filtros opcionales por usuarioId y productoId.</summary>
     /// <response code="200">Listado de ordenes</response>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<OrderResponse>), 200)]
-    public async Task<IActionResult> GetAll([FromQuery] Guid? usuarioId)
+    public async Task<IActionResult> GetAll([FromQuery] Guid? usuarioId, [FromQuery] Guid? productoId)
     {
-        var orders = await service.GetAllAsync(usuarioId);
+        var orders = await service.GetAllAsync(usuarioId, productoId);
         return Ok(orders);
     }
 

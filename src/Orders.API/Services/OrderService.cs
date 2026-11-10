@@ -8,7 +8,7 @@ namespace Orders.API.Services;
 
 public interface IOrderService
 {
-    Task<IEnumerable<OrderResponse>> GetAllAsync(Guid? usuarioId);
+    Task<IEnumerable<OrderResponse>> GetAllAsync(Guid? usuarioId, Guid? productoId);
     Task<OrderResponse> GetByIdAsync(Guid id);
     Task<OrderResponse> CreateAsync(CreateOrderRequest req, string correlationId);
     Task<OrderResponse> UpdateStatusAsync(Guid id, string estado);
@@ -65,13 +65,24 @@ public class OrderService : IOrderService
         """);
     }
 
-    public async Task<IEnumerable<OrderResponse>> GetAllAsync(Guid? usuarioId)
+    public async Task<IEnumerable<OrderResponse>> GetAllAsync(Guid? usuarioId, Guid? productoId)
     {
         using var conn = CreateConnection();
-        var sql = "SELECT id AS Id, usuario_id AS UsuarioId, total AS Total, estado AS Estado, fecha_creacion AS FechaCreacion, fecha_actualizacion AS FechaActualizacion FROM orders";
-        if (usuarioId.HasValue) sql += " WHERE usuario_id = @UsuarioId";
+        var sql = "SELECT id AS Id, usuario_id AS UsuarioId, total AS Total, estado AS Estado, fecha_creacion AS FechaCreacion, fecha_actualizacion AS FechaActualizacion FROM orders WHERE 1=1";
+        var parameters = new DynamicParameters();
 
-        var rows = await conn.QueryAsync<dynamic>(sql, usuarioId.HasValue ? new { UsuarioId = usuarioId.ToString() } : null);
+        if (usuarioId.HasValue)
+        {
+            sql += " AND usuario_id = @UsuarioId";
+            parameters.Add("UsuarioId", usuarioId.Value.ToString());
+        }
+        if (productoId.HasValue)
+        {
+            sql += " AND id IN (SELECT order_id FROM order_items WHERE producto_id = @ProductoId)";
+            parameters.Add("ProductoId", productoId.Value.ToString());
+        }
+
+        var rows = await conn.QueryAsync<dynamic>(sql, parameters);
         var result = new List<OrderResponse>();
 
         foreach (var row in rows)
