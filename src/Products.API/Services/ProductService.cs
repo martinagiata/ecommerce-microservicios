@@ -12,16 +12,20 @@ public interface IProductService
     Task<ProductResponse> GetByIdAsync(Guid id);
     Task<ProductResponse> CreateAsync(CreateProductRequest req);
     Task<ProductResponse> UpdateAsync(Guid id, UpdateProductRequest req);
-    Task DeleteAsync(Guid id);
+    Task DeleteAsync(Guid id, string correlationId);
 }
 
 public class ProductService : IProductService
 {
     private readonly string _connectionString;
+    private readonly HttpClient _httpClient;
+    private readonly string _ordersUrl;
 
-    public ProductService(IConfiguration config)
+    public ProductService(IConfiguration config, HttpClient httpClient)
     {
         _connectionString = config.GetConnectionString("DefaultConnection") ?? "Data Source=products.db";
+        _httpClient = httpClient;
+        _ordersUrl = config["ServicesUrls:Orders"] ?? "http://localhost:5080";
         Initialize();
     }
 
@@ -153,14 +157,39 @@ public class ProductService : IProductService
         return (await FindAsync(id))!;
     }
 
-    public async Task DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id, string correlationId)
     {
         var existing = await FindAsync(id);
         if (existing is null)
             throw new NotFoundException(ErrorCodes.PRD_001, "Producto no encontrado.");
 
+        // PRD-004: no se puede eliminar un producto referenciado por ordenes activas
+        if (await TieneOrdenesActivasAsync(id, correlationId))
+            throw new BusinessRuleException(ErrorCodes.PRD_004,
+                "El producto tiene ordenes activas y no puede eliminarse.", statusCode: 409);
+
         using var conn = CreateConnection();
         await conn.ExecuteAsync("DELETE FROM products WHERE id = @Id", new { Id = id.ToString() });
+    }
+
+    private async Task<bool> TieneOrdenesActivasAsync(Guid productId, string correlationId)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Remove("X-Correlation-Id");
+            _httpClient.DefaultRequestHeaders.Add("X-Correlation-Id", correlationId);
+
+            var resp = await _httpClient.GetAsync($"{_ordersUrl}/api/orders?productoId={productId}");
+            if (!resp.IsSuccessStatusCode) return false;
+
+            var ordenes = await resp.Content.ReadFromJsonAsync<List<OrderSummary>>() ?? new();
+            return ordenes.Any(o => o.Estado is "Pendiente" or "Confirmada");
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            // Orders.API no disponible: no se puede verificar, se permite el borrado
+            return false;
+        }
     }
 
     private async Task<ProductResponse?> FindAsync(Guid id)
@@ -186,4 +215,9 @@ public class ProductService : IProductService
             FechaCreacion = DateTime.Parse((string)row.FechaCreacion)
         };
     }
+}
+
+public record OrderSummary
+{
+    public string Estado { get; init; } = string.Empty;
 }
